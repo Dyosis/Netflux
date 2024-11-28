@@ -1,0 +1,13 @@
+{% extends 'Layout/base.html.twig' %}
+
+{% block body %}
+    <form method="post" enctype="multipart/form-data" >
+        <input type="text" name="title" placeholder="Title" required>
+        <textarea name="synopsis" placeholder="Synopsis"></textarea>
+        <input type="text" name="director" placeholder="Director" required>
+        <input type="date" name="release_date" placeholder="Release date" required>
+        <input type="file" required name="file" />
+        <input type="submit">
+    </form>
+{% endblock body %}
+

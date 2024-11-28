@@ -1,0 +1,11 @@
+{% extends 'Layout/base.html.twig' %}
+
+{% block body %}
+    <h1>{{ movie.title }}</h1>
+    <p>{{ movie.synopsis }}</p>
+
+    <video controls>
+        <source src="{{ path('app_movie_download', {'id': movie.id}) }}">
+    </video>
+{% endblock %}
+
