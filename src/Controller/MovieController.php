@@ -2,12 +2,11 @@
 
 namespace App\Controller;
 
-use App\Entity\File;
 use App\Entity\Movie;
+use App\Form\Type\MovieType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,42 +34,38 @@ class MovieController extends AbstractController
     }
 
     #[Route('/create', 'app_movie_create')]
-    public function create(Request $request, EntityManagerInterface $entityManager, ParameterBagInterface $parameterBag): Response|RedirectResponse
+    public function create(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        ParameterBagInterface $parameterBag,
+    ): Response
     {
-        if ($request->isMethod(Request::METHOD_POST)) {
+        $movie = new Movie();
 
-            /** @var UploadedFile $file */
-            $requestFile = $request->files->get('file');
-            $name = uniqid() . '.' . $requestFile->guessExtension();
-            $requestFile->move($parameterBag->get('upload_directory'), $name);
-            [
-                'title' => $title,
-                'synopsis' => $synopsis,
-                'director' => $director,
-                'release_date' => $releaseDate,
-            ] = $request->request->all();
+        $form = $this
+            ->createForm(MovieType::class, $movie)
+            ->handleRequest($request)
+        ;
 
-            $movie = new Movie();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $uploadedFile = $form->get('file')->get('tata')->getData();
+            $name = uniqid() . '.' . $uploadedFile->guessExtension();
+            $uploadedFile->move($parameterBag->get('upload_directory'), $name);
             $movie
-                ->setTitle($title)
-                ->setSynopsis($synopsis)
-                ->setDirector($director)
-                ->setReleaseDate(new \DateTime($releaseDate));
-
-            $file = new File();
-            $file
-                ->setName($requestFile->getClientOriginalName())
-                ->setPath($name);
-            $movie->setFile($file);
+                ->getFile()
+                ->setName($uploadedFile->getClientOriginalName())
+                ->setPath($name)
+            ;
 
             $entityManager->persist($movie);
-            $entityManager->persist($file);
             $entityManager->flush();
 
             return $this->redirectToRoute('app_movie_list');
         }
 
-        return $this->render('Page/Movie/create.html.twig');
+        return $this->render('Page/Movie/create.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
 
     #[Route('/{id}/update', 'app_movie_update', requirements: ['id' => '\d+'])]

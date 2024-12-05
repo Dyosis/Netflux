@@ -12,7 +12,6 @@ class HomeController extends AbstractController
     #[Route('/', name: 'app_home_index')]
     public function index(ParameterBagInterface $parameterBag): Response
     {
-        dd($parameterBag->get('jean'));
         return $this->render('Page/Home/index.html.twig');
     }
 }

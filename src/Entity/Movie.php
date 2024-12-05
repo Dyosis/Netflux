@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\MovieRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: MovieRepository::class)]
 class Movie
@@ -15,9 +16,11 @@ class Movie
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\Length(max: 25, min: 3, minMessage: 'Le titre doit être de %value% caractères', maxMessage: 'Le titre doit être de {{ limit }} char max')]
     private ?string $title = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\NotBlank(groups: ['Toto'])]
     private ?string $synopsis = null;
 
     #[ORM\Column(length: 255)]
@@ -26,7 +29,7 @@ class Movie
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $releaseDate = null;
 
-    #[ORM\OneToOne(targetEntity: File::class)]
+    #[ORM\OneToOne(targetEntity: File::class, cascade: ['persist'])]
     private ?File $file = null;
 
     public function getId(): ?int
