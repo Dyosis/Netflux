@@ -11,11 +11,13 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/movies')]
 class MovieController extends AbstractController
 {
     #[Route('/', 'app_movie_list')]
+    #[IsGranted('ROLE_USER')]
     public function list(EntityManagerInterface $entityManager): Response
     {
         $movies = $entityManager->getRepository(Movie::class)->findAll();
